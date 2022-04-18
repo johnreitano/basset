@@ -1,8 +1,20 @@
+init:
+  app:
+    keyring-backend: "test"
+
+init:
+  client:
+    keyring-backend: "test"
+
 accounts:
   - name: alice
-    coins: ["20000token", "200000000stake"]
+    coins: ["20000basset", "200000000stake"]
+    # address: ""
+    mnemonic: "gun quick banner word mutual pet sort run illness behind pull stock crazy talk actor icon help gym young census decorate swamp two plunge"
   - name: bob
-    coins: ["10000token", "100000000stake"]
+    coins: ["10000basset", "100000000stake"]
+    # address: ""
+    mnemonic: "mule multiply combine frown aim window top weekend frown cancel turn token canoe thumb attitude flame execute purpose chest design winner enable coconut retire"
 validator:
   name: alice
   staked: "100000000stake"
@@ -13,4 +25,4 @@ client:
     path: "vue/src/store"
 faucet:
   name: bob
-  coins: ["5token", "100000stake"]
+  coins: ["5basset", "100000stake"]
