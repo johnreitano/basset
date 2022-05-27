@@ -33,8 +33,7 @@ resource "null_resource" "setup_primary_validator" {
   count      = var.num_instances == 0 ? 0 : 1
   depends_on = [aws_eip.validator[0], aws_instance.validator[0]]
   provisioner "local-exec" {
-    # command = "cd ..; rm -f /tmp/basset-0.tar.gz; git ls-files | tar -czvf /tmp/basset-0.tar.gz -T -"
-    command = "echo ***ip=${aws_eip.validator[count.index].public_ip}"
+    command = "cd ..; rm -f /tmp/basset-0.tar.gz; git ls-files | tar -czvf /tmp/basset-0.tar.gz -T -"
   }
   provisioner "file" {
     source      = "/tmp/basset-0.tar.gz"
@@ -60,9 +59,9 @@ resource "null_resource" "setup_primary_validator" {
       host        = aws_eip.validator[0].public_ip
     }
   }
-  provisioner "local-exec" {
-    command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/genesis.json genesis_0.json"
-  }
+  # provisioner "local-exec" {
+  #   command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/genesis.json genesis_0.json"
+  # }
 }
 
 resource "null_resource" "setup_secondary_validators" {
@@ -71,7 +70,7 @@ resource "null_resource" "setup_secondary_validators" {
   for_each = { for i in range(1, max(var.num_instances, 1)) : i => i }
 
   provisioner "local-exec" {
-    command = "cd ..; ((git ls-files; echo 'terraform/genesis_0.json') | tar -czvf /tmp/basset-${each.value}.tar.gz -T -)"
+    command = "cd ..; git ls-files | tar -czvf /tmp/basset.tar.gz -T -)"
   }
 
   provisioner "file" {

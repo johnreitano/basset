@@ -77,14 +77,15 @@ EOF
 
 cp terraform/node_key_validator_${INDEX}.json ~/.basset/config/node_key.json
 
-if [[ "$INDEX" = "0" ]]; then
+if [[ "$INDEX" = "genesis" ]]; then
+    # we need to build the genesis file
     build/bassetd add-genesis-account $(build/bassetd keys show alice -a --keyring-backend test) 100000000000stake
     # build/bassetd export > ~/genesis_1-export.json
     build/bassetd gentx alice 100000000stake --chain-id basset-test-1 --moniker="$MONIKER" --keyring-backend test
     build/bassetd collect-gentxs
-else
-    cp terraform/genesis_0.json ~/.basset/config/genesis.json
+    exit 0
 fi
+cp terraform/genesis.json ~/.basset/config/genesis.json
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.external_address" "${EXTERNAL_ADDRESS}"
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.persistent_peers" "${P2P_PERSISTENT_PEERS}"
 

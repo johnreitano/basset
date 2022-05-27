@@ -65,6 +65,7 @@ rm -rf ~/.basset
 build/bassetd init $MONIKER --chain-id basset-test-1
 
 cp terraform/node_key_seed_${INDEX}.json ~/.basset/config/node_key.json
+cp terraform/genesis.json ~/.basset/config/genesis.json
 
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.external_address" "${EXTERNAL_ADDRESS}"
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.persistent_peers" "${P2P_PERSISTENT_PEERS}"
