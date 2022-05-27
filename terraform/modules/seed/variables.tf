@@ -30,3 +30,8 @@ variable "num_instances" {
 variable "ami" {
   description = "the ami to use for instances"
 }
+
+variable "validator_ips" {
+  description = "the ip addresses of the validator nodes"
+}
+

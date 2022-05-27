@@ -1,3 +1,3 @@
-output "ip_addresses" {
+output "ips" {
   value = [for i in range(var.num_instances) : aws_eip.validator[i].public_ip]
 }

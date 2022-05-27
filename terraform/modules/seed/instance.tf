@@ -29,13 +29,17 @@ resource "aws_eip" "seed" {
   }
 }
 
-resource "null_resource" "provision_instance" {
-  count = var.num_instances
-  # depends_on = [aws_eip.seed[count.index], aws_instance.seed[count.index]]
+resource "null_resource" "setup_seed2" {
+  depends_on = [aws_eip.seed[0], aws_eip.seed[1], aws_eip.seed[2]]
+  count      = var.num_instances
+
+  provisioner "local-exec" {
+    command = "cd ..; (git ls-files | tar -czvf /tmp/basset.tar.gz -T -)"
+  }
 
   provisioner "file" {
-    source      = "modules/seed/setup.sh"
-    destination = "/tmp/setup.sh"
+    source      = "/tmp/basset.tar.gz"
+    destination = "/tmp/basset.tar.gz"
     connection {
       type        = "ssh"
       user        = "ubuntu"
@@ -43,11 +47,13 @@ resource "null_resource" "provision_instance" {
       host        = aws_eip.seed[count.index].public_ip
     }
   }
+
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /tmp/setup.sh",
-      "sudo /tmp/setup.sh",
-      "echo provisioning seed node ${count.index}"
+      "echo provisioning seed node ${count.index}",
+      "rm -rf ~/basset && mkdir ~/basset && cd ~/basset && tar -xzvf /tmp/basset.tar.gz",
+      "cd ~/basset && terraform/modules/seed/setup.sh ${count.index} '${join(",", [for node in aws_eip.seed : node.public_ip])}' '${join(",", var.validator_ips)}'",
+      "cd ~/basset && terraform/modules/seed/start.sh ${count.index}"
     ]
     connection {
       type        = "ssh"

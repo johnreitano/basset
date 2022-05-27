@@ -1,3 +1,3 @@
-output "ip_address" {
+output "ip" {
   value = aws_eip.explorer.public_ip
 }

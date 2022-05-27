@@ -1,11 +1,11 @@
-output "validator_ip_addresses" {
-  value = module.validator.ip_addresses
+output "validator_ips" {
+  value = module.validator.ips
 }
 
-output "seed_ip_addresses" {
-  value = module.seed.ip_addresses
+output "seed_ips" {
+  value = module.seed.ips
 }
 
-output "explorer_ip_address" {
-  value = module.explorer.ip_address
+output "explorer_ip" {
+  value = module.explorer.ip
 }
