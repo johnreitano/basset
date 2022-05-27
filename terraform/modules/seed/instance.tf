@@ -29,7 +29,7 @@ resource "aws_eip" "seed" {
   }
 }
 
-resource "null_resource" "setup_seed2" {
+resource "null_resource" "setup_seed" {
   depends_on = [aws_eip.seed[0], aws_eip.seed[1], aws_eip.seed[2]]
   count      = var.num_instances
 
@@ -53,7 +53,7 @@ resource "null_resource" "setup_seed2" {
       "echo provisioning seed node ${count.index}",
       "rm -rf ~/basset && mkdir ~/basset && cd ~/basset && tar -xzvf /tmp/basset.tar.gz",
       "cd ~/basset && terraform/modules/seed/setup.sh ${count.index} '${join(",", [for node in aws_eip.seed : node.public_ip])}' '${join(",", var.validator_ips)}'",
-      "cd ~/basset && terraform/modules/seed/start.sh ${count.index}"
+      "cd ~/basset && terraform/modules/seed/start.sh ${count.index}",
     ]
     connection {
       type        = "ssh"

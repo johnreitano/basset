@@ -75,7 +75,7 @@ build/bassetd keys add preston --keyring-backend test --recover <<EOF
 chase prepare swift battle help test people disease uphold camp manual kitten skill burger much tool gap fan rival assist usual brown attack never
 EOF
 
-cp terraform/node_key_${INDEX}.json ~/.basset/config/node_key.json
+cp terraform/node_key_validator_${INDEX}.json ~/.basset/config/node_key.json
 
 if [[ "$INDEX" = "0" ]]; then
     build/bassetd add-genesis-account $(build/bassetd keys show alice -a --keyring-backend test) 100000000000stake

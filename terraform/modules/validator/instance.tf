@@ -33,7 +33,8 @@ resource "null_resource" "setup_primary_validator" {
   count      = var.num_instances == 0 ? 0 : 1
   depends_on = [aws_eip.validator[0], aws_instance.validator[0]]
   provisioner "local-exec" {
-    command = "cd ..; rm -f /tmp/basset-0.tar.gz; git ls-files | tar -czvf /tmp/basset-0.tar.gz -T -"
+    # command = "cd ..; rm -f /tmp/basset-0.tar.gz; git ls-files | tar -czvf /tmp/basset-0.tar.gz -T -"
+    command = "echo ***ip=${aws_eip.validator[count.index].public_ip}"
   }
   provisioner "file" {
     source      = "/tmp/basset-0.tar.gz"
@@ -61,7 +62,6 @@ resource "null_resource" "setup_primary_validator" {
   }
   provisioner "local-exec" {
     command = "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/genesis.json genesis_0.json"
-
   }
 }
 
@@ -107,8 +107,6 @@ resource "null_resource" "start_validators" {
   provisioner "remote-exec" {
     inline = [
       "cd ~/basset && terraform/modules/validator/start.sh ${count.index}",
-      "tail ~/basset/basset.out",
-      "ps aux | grep basset",
     ]
     connection {
       type        = "ssh"
