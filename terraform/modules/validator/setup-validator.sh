@@ -77,13 +77,17 @@ chase prepare swift battle help test people disease uphold camp manual kitten sk
 EOF
 
 cp terraform/node_key_validator_${INDEX}.json ~/.basset/config/node_key.json
+cp -f terraform/genesis.json ~/.basset/config/genesis.json
+
 if [[ "${INDEX}" = "0" ]]; then
-    build/bassetd add-genesis-account $(build/bassetd keys show alice -a --keyring-backend test) 100000000000stake
-    # build/bassetd export > ~/genesis_export.json
-    build/bassetd gentx alice 100000000stake --chain-id basset-test-1 --moniker="genesis" --keyring-backend test
-    build/bassetd collect-gentxs
+    cp -f terraform/priv_validator_key.json ~/.basset/config/genesis.json
+
+    # build/bassetd add-genesis-account $(build/bassetd keys show alice -a --keyring-backend test) 100000000000stake
+    # # build/bassetd export > ~/genesis_export.json
+    # build/bassetd gentx alice 100000000stake --chain-id basset-test-1 --moniker="genesis" --keyring-backend test
+    # build/bassetd collect-gentxs
 else
-    cp terraform/genesis.json ~/.basset/config/genesis.json
+    # cp -f terraform/genesis.json ~/.basset/config/genesis.json
     sleep 30 # give primary validator node head start validating
 fi
 

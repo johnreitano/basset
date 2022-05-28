@@ -77,13 +77,13 @@ resource "null_resource" "setup_validator" {
     }
   }
 
-  provisioner "local-exec" {
-    command = <<-EOF
-      if [[ "${count.index}" = "0" ]];
-        then scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/genesis.json genesis.json
-      fi
-      EOF
-  }
+  # provisioner "local-exec" {
+  #   command = <<-EOF
+  #     if [[ "${count.index}" = "0" ]];
+  #       then scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/genesis.json genesis.json
+  #     fi
+  #     EOF
+  # }
 
 }
 
