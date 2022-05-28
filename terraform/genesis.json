@@ -1,5 +1,5 @@
 {
-  "genesis_time": "2022-05-28T04:01:41.578104334Z",
+  "genesis_time": "2022-05-28T04:31:25.461950557Z",
   "chain_id": "basset-test-1",
   "initial_height": "1",
   "consensus_params": {
@@ -121,7 +121,7 @@
                 "validator_address": "bassetvaloper17qgzqxuszs45zd5gh78y8at0uvs3whdd8wzu0e",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "AMZr9NnwWnH6cfZtgSv1l00c0Kammv407PZaccdBjQM="
+                  "key": "VsG0mTPeDhQpPJYbzc246A7gUjZJrbxDuA6E6dOn+yA="
                 },
                 "value": {
                   "denom": "stake",
@@ -157,7 +157,7 @@
             }
           },
           "signatures": [
-            "+Xscdb5kORENPugVPfyveFSDVGYxuSfm7nMsO6XTRw5FImi0yG/KG//xAfgr5GWFT2HH1FsIObYVVDgoJQxEug=="
+            "rS0pvdK1Y7/wCx+2VBzTx9HK5oqrXSEvGbIyLd/NJwAoLqIBwecjEbYL9Vln3Mw+woW162MTD+DQaX6YM7Bs9A=="
           ]
         }
       ]
