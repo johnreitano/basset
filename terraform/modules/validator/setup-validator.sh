@@ -90,8 +90,7 @@ fi
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.external_address" "${P2P_EXTERNAL_ADDRESS}"
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.persistent_peers" "${P2P_PERSISTENT_PEERS}"
 
-echo Validator node ${INDEX} has id $(build/bassetd tendermint show-node-id)
-
 # nohup ignite chain serve --verbose >basset.out 2>&1 </dev/null &
 nohup build/bassetd start >basset.out 2>&1 </dev/null &
 sleep 2
+echo Started validator node ${INDEX} with id $(build/bassetd tendermint show-node-id)

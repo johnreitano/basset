@@ -27,12 +27,6 @@ variable "num_instances" {
   type        = number
 }
 
-variable "should_generate_genesis_file" {
-  description = "true indicates that a new genesis block should be generated"
-  type        = bool
-  default     = false
-}
-
 variable "ami" {
   description = "the ami to use for instances"
 }

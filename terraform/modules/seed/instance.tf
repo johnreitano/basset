@@ -39,7 +39,11 @@ resource "null_resource" "setup_seed" {
   count      = var.num_instances
 
   provisioner "local-exec" {
-    command = "cd ..; rm -f /tmp/basset.tar.gz; git ls-files | tar -czf /tmp/basset.tar.gz -T -"
+    command = <<-EOF
+      rm -f /tmp/basset.tar.gz
+      cd ..
+      git ls-files | tar -czf /tmp/basset.tar.gz -T -
+    EOF
   }
 
   provisioner "file" {
@@ -56,8 +60,12 @@ resource "null_resource" "setup_seed" {
   provisioner "remote-exec" {
     inline = [
       "echo provisioning seed node ${count.index}",
-      "rm -rf ~/basset && mkdir ~/basset && cd ~/basset && tar -xzf /tmp/basset.tar.gz",
-      "cd ~/basset && echo terraform/modules/seed/setup-seed.sh ${count.index} '${local.seed_ips_str}' '${local.validator_ips_str}'",
+      "pkill bassetd",
+      "rm -rf ~/basset",
+      "mkdir ~/basset",
+      "cd ~/basset",
+      "tar -xzf /tmp/basset.tar.gz",
+      "terraform/modules/seed/setup-seed.sh ${count.index} '${local.seed_ips_str}' '${local.validator_ips_str}'",
     ]
     connection {
       type        = "ssh"

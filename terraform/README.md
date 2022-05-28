@@ -8,7 +8,7 @@
 - get basic network set up [DONE]
 - get 3 validators running on new network [DONE]
 - try exporting genesis block from primary validator
-- get 2 seeds running
+- get 2 seeds running [DONE]
 - get basic pg rds running and configured
 - get explorer working
   - hasura: https://medium.com/bb-tutorials-and-thoughts/running-docker-containers-on-aws-ec2-9b17add53646

@@ -7,7 +7,7 @@ INDEX=$1
 
 SEED_IPS_STR=$2
 SEED_IPS=(${SEED_IPS_STR//,/ })
-SEED_P2P_KEYS=(9038832904699724f0b62188e088a86acb629fad de77ff9811178b9b14507dae3cde3ffa0df68130 f400ee08cfab588dac133ca73c9ba1f4f8101de0)
+SEED_P2P_KEYS=(9038832904699724f0b62188e088a86acb629fad de77ff9811178b9b14507dae3cde3ffa0df68130 192fd886732afb466690f1e098ddd62cfe7a63e4)
 
 VALIDATOR_IPS_STR=$3
 VALIDATOR_IPS=(${VALIDATOR_IPS_STR//,/ })
@@ -66,8 +66,7 @@ cp terraform/genesis.json ~/.basset/config/genesis.json
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.external_address" "${P2P_EXTERNAL_ADDRESS}"
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.persistent_peers" "${P2P_PERSISTENT_PEERS}"
 
-echo This seed node has id $(build/bassetd tendermint show-node-id)
-
 # nohup ignite chain serve --verbose >basset.out 2>&1 </dev/null &
 nohup build/bassetd start >basset.out 2>&1 </dev/null &
 sleep 2
+echo Started seed node ${INDEX} with id $(build/bassetd tendermint show-node-id)
