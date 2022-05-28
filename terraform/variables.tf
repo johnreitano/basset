@@ -47,12 +47,19 @@ variable "explorer_subnet_cidr" {
   default     = "10.0.3.0/24"
 }
 
+variable "num_validator_instances" {
+  description = "number of validator instances"
+  default     = 1
+}
+
+variable "should_generate_genesis_file" {
+  description = "true indicates that a new genesis block should be generated"
+  type        = bool
+  default     = false
+}
+
 variable "num_seed_instances" {
   description = "number of seed instances"
   default     = 1
 }
 
-variable "num_validator_instances" {
-  description = "number of validator instances"
-  default     = 1
-}
