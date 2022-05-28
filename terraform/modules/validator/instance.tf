@@ -39,9 +39,6 @@ resource "null_resource" "setup_validator" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      if [[ "${count.index}" != "0" ]]; then
-        sleep 30
-      fi
       rm -f /tmp/basset.tar.gz
       cd ..
       git ls-files | tar -czf /tmp/basset.tar.gz -T -
@@ -77,13 +74,52 @@ resource "null_resource" "setup_validator" {
     }
   }
 
-  # provisioner "local-exec" {
-  #   command = <<-EOF
-  #     if [[ "${count.index}" = "0" ]];
-  #       then scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/genesis.json genesis.json
-  #     fi
-  #     EOF
-  # }
-
+  provisioner "local-exec" {
+    command = <<-EOF
+      if [[ "${count.index}" != "0" ]]; then
+        mkdir -p "/tmp/genesis-${random_id.id[0].hex}/"
+        echo "node ${count.index}: here1"
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[count.index].public_ip}:.basset/config/gentx/gentx-\*.json "/tmp/genesis-${random_id.id[0].hex}/"
+        echo "node ${count.index}: here2"
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa "/tmp/genesis-${random_id.id[0].hex}/\*" ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/gentx/
+        echo "node ${count.index}: here3"
+      fi
+      EOF
+  }
 }
 
+resource "random_id" "id" {
+  count       = var.num_instances
+  byte_length = 8
+}
+
+
+resource "null_resource" "start_validator" {
+  depends_on = [null_resource.setup_validator[0], null_resource.setup_validator[1], null_resource.setup_validator[2], ]
+  count      = var.num_instances
+
+  provisioner "local-exec" {
+    command = <<-EOF
+      if [[ "${count.index}" != "0" ]]; then
+        sleep 30 # wait for genesis file to be generated on primary validator
+        mkdir -p "/tmp/genesis-${random_id.id[count.index].hex}/"
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/genesis.json "/tmp/genesis-${random_id.id[count.index].hex}/genesis.json"        
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa "/tmp/genesis-${random_id.id[count.index].hex}/genesis.json" ubuntu@${aws_eip.validator[count.index].public_ip}:.basset/config/genesis.json
+        rm -rf "${random_id.id[count.index].hex}"
+      fi
+    EOF
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo provisioning validator node ${count.index}",
+      "terraform/modules/validator/start-validator.sh ${count.index}",
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("~/.ssh/id_rsa")
+      host        = aws_eip.validator[count.index].public_ip
+    }
+  }
+}

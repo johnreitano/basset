@@ -22,10 +22,13 @@ done
 
 if [[ "${INDEX}" = "0" ]]; then
     MONIKER="red"
+    MNEMONIC="gun quick banner word mutual pet sort run illness behind pull stock crazy talk actor icon help gym young census decorate swamp two plunge"
 elif [[ "${INDEX}" = "1" ]]; then
     MONIKER="blue"
+    MNEMONIC="gun quick banner word mutual pet sort run illness behind pull stock crazy talk actor icon help gym young census decorate swamp two plunge"
 else
     MONIKER="green"
+    MNEMONIC="business bless fuel joy lady volcano odor tribe virus have effort rate mouse disease general view mention evoke lend expect frozen trend shrimp flavor"
 fi
 
 echo MONIKER=$MONIKER
@@ -55,46 +58,15 @@ cd ~/basset
 # ignite chain build --output build
 make build-basset-linux
 
+# configure this validator
 rm -rf ~/.basset
 build/bassetd init $MONIKER --chain-id basset-test-1
-
-# add some keys
-yes | build/bassetd keys delete alice --keyring-backend test 2>/dev/null || :
-build/bassetd keys add alice --keyring-backend test --recover <<EOF
-gun quick banner word mutual pet sort run illness behind pull stock crazy talk actor icon help gym young census decorate swamp two plunge
-EOF
-yes | build/bassetd keys delete bob --keyring-backend test 2>/dev/null || :
-build/bassetd keys add bob --keyring-backend test --recover <<EOF
-mule multiply combine frown aim window top weekend frown cancel turn token canoe thumb attitude flame execute purpose chest design winner enable coconut retire
-EOF
-yes | build/bassetd keys delete sandra --keyring-backend test 2>/dev/null || :
-build/bassetd keys add sandra --keyring-backend test --recover <<EOF
-business bless fuel joy lady volcano odor tribe virus have effort rate mouse disease general view mention evoke lend expect frozen trend shrimp flavor
-EOF
-yes | build/bassetd keys delete preston --keyring-backend test 2>/dev/null || :
-build/bassetd keys add preston --keyring-backend test --recover <<EOF
-chase prepare swift battle help test people disease uphold camp manual kitten skill burger much tool gap fan rival assist usual brown attack never
-EOF
-
 cp terraform/node_key_validator_${INDEX}.json ~/.basset/config/node_key.json
-cp -f terraform/genesis.json ~/.basset/config/genesis.json
-
-if [[ "${INDEX}" = "0" ]]; then
-    cp -f terraform/priv_validator_key.json ~/.basset/config/genesis.json
-
-    # build/bassetd add-genesis-account $(build/bassetd keys show alice -a --keyring-backend test) 100000000000stake
-    # # build/bassetd export > ~/genesis_export.json
-    # build/bassetd gentx alice 100000000stake --chain-id basset-test-1 --moniker="genesis" --keyring-backend test
-    # build/bassetd collect-gentxs
-else
-    # cp -f terraform/genesis.json ~/.basset/config/genesis.json
-    sleep 30 # give primary validator node head start validating
-fi
-
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.external_address" "${P2P_EXTERNAL_ADDRESS}"
 dasel put string -f ~/.basset/config/config.toml -p toml ".p2p.persistent_peers" "${P2P_PERSISTENT_PEERS}"
 
-# nohup ignite chain serve --verbose >basset.out 2>&1 </dev/null &
-nohup build/bassetd start >basset.out 2>&1 </dev/null &
-sleep 2
-echo Started validator node ${INDEX} with id $(build/bassetd tendermint show-node-id)
+# generate genesis transaction for this validator
+yes | build/bassetd keys delete ${MONIKER}-key --keyring-backend test 2>/dev/null || :
+echo $MNEMONIC | build/bassetd keys add ${MONIKER}-key --keyring-backend test --recover
+build/bassetd add-genesis-account $(build/bassetd keys show ${MONIKER}-key -a --keyring-backend test) 100000000000stake
+build/bassetd gentx ${MONIKER}-key 100000000stake --chain-id basset-test-1 --moniker=${MONIKER} --keyring-backend test
