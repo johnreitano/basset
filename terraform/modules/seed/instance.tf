@@ -16,8 +16,8 @@ resource "aws_instance" "seed" {
     Project     = var.project
     Name        = "${var.project}-${var.env}-seed-${count.index}"
   }
-
 }
+
 resource "aws_eip" "seed" {
   count    = 3
   instance = aws_instance.seed[count.index].id
@@ -27,6 +27,11 @@ resource "aws_eip" "seed" {
     Project     = var.project
     Name        = "${var.project}-${var.env}-seed-eip-${count.index}"
   }
+}
+
+locals {
+  seed_ips_str      = join(",", [for node in aws_eip.seed : node.public_ip])
+  validator_ips_str = join(",", var.validator_ips)
 }
 
 resource "null_resource" "setup_seed" {
@@ -52,9 +57,7 @@ resource "null_resource" "setup_seed" {
     inline = [
       "echo provisioning seed node ${count.index}",
       "rm -rf ~/basset && mkdir ~/basset && cd ~/basset && tar -xzf /tmp/basset.tar.gz",
-      "cd ~/basset && echo terraform/modules/seed/setup.sh ${count.index} '${join(",", [for node in aws_eip.seed : node.public_ip])}' '${join(",", var.validator_ips)}'",
-      "cd ~/basset && terraform/modules/seed/setup.sh ${count.index} '${join(",", [for node in aws_eip.seed : node.public_ip])}' '${join(",", var.validator_ips)}'",
-      "cd ~/basset && terraform/modules/seed/start.sh ${count.index}",
+      "cd ~/basset && echo terraform/modules/seed/setup-seed.sh ${count.index} '${local.seed_ips_str}' '${local.validator_ips_str}'",
     ]
     connection {
       type        = "ssh"

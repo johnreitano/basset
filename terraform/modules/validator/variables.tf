@@ -22,6 +22,12 @@ variable "ssh_keypair" {
   description = "SSH keypair to use for EC2 instance"
 }
 
+variable "should_generate_genesis_file" {
+  description = "true indicates that a new genesis block should be generated"
+  type        = bool
+  default     = false
+}
+
 variable "num_instances" {
   description = "the number of instances"
   type        = number
