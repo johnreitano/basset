@@ -3,6 +3,8 @@
 set -x
 set -e
 
+sudo apt update -y
+
 if [[ -z "$(which make)" ]]; then
     sudo apt install -y make
 fi

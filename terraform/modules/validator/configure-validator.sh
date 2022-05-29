@@ -3,7 +3,7 @@
 set -x
 set -e
 
-INDEX=$1
+NODE_INDEX=$1
 if [[ "${NODE_INDEX}" = "0" ]]; then
     MONIKER="red"
 elif [[ "${NODE_INDEX}" = "1" ]]; then
