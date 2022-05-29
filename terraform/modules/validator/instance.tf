@@ -58,13 +58,15 @@ resource "null_resource" "setup_validator_and_generate_gentx" {
 
   provisioner "remote-exec" {
     inline = [
-      "echo provisioning validator node ${count.index}",
+      "echo setting up validator node and generating gentx",
       "pkill bassetd",
       "rm -rf ~/basset",
       "mkdir ~/basset",
       "cd ~/basset",
       "tar -xzf /tmp/basset.tar.gz",
-      "terraform/modules/validator/setup-validator.sh ${count.index} '${local.validator_ips_str}'",
+      "terraform/modules/validator/build-client.sh",
+      "terraform/modules/validator/configure-validator.sh ${count.index} '${local.validator_ips_str}'",
+      "terraform/modules/validator/generate-gentx.sh ${count.index}",
     ]
     connection {
       type        = "ssh"
@@ -74,6 +76,7 @@ resource "null_resource" "setup_validator_and_generate_gentx" {
     }
   }
 
+  # copy gentxs to first validator node from other secondary validator nodes
   provisioner "local-exec" {
     command = <<-EOF
       if [[ "${count.index}" != "0" ]]; then
@@ -86,16 +89,42 @@ resource "null_resource" "setup_validator_and_generate_gentx" {
   }
 }
 
+resource "null_resource" "generate_genesis_file" {
+  depends_on = [null_resource.setup_validator_and_generate_gentx[0], null_resource.setup_validator_and_generate_gentx[1], null_resource.setup_validator_and_generate_gentx[2]]
+  count      = var.num_instances == 0 ? 0 : 1
+
+  provisioner "remote-exec" {
+    inline = [
+      "echo generating genesis file on validator node 0",
+      "cd ~/basset",
+      "terraform/modules/validator/generate-genesis-file.sh",
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("~/.ssh/id_rsa")
+      host        = aws_eip.validator[0].public_ip
+    }
+  }
+
+  # copy genesis file to temporary file for later use
+  provisioner "local-exec" {
+    command = <<-EOF
+      rm -f /tmp/genesis.json
+      scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/genesis.json /tmp/genesis.json
+    EOF
+  }
+}
+
+
 resource "null_resource" "start_validator" {
-  depends_on = [null_resource.setup_validator_and_generate_gentx[0], null_resource.setup_validator_and_generate_gentx[1], null_resource.setup_validator_and_generate_gentx[2], ]
+  depends_on = [null_resource.generate_genesis_file[0]]
   count      = var.num_instances
 
   provisioner "local-exec" {
     command = <<-EOF
       if [[ "${count.index}" != "0" ]]; then
-        sleep 30 # wait for genesis file to be generated on primary validator
-        rm -f /tmp/genesis.json
-        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa ubuntu@${aws_eip.validator[0].public_ip}:.basset/config/genesis.json /tmp/genesis.json
+        # for secondary validator nodes, get copy of genesis
         scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa /tmp/genesis.json ubuntu@${aws_eip.validator[count.index].public_ip}:.basset/config/genesis.json
       fi
     EOF
