@@ -25,7 +25,7 @@ if [[ "${INDEX}" = "0" ]]; then
     MNEMONIC="gun quick banner word mutual pet sort run illness behind pull stock crazy talk actor icon help gym young census decorate swamp two plunge"
 elif [[ "${INDEX}" = "1" ]]; then
     MONIKER="blue"
-    MNEMONIC="gun quick banner word mutual pet sort run illness behind pull stock crazy talk actor icon help gym young census decorate swamp two plunge"
+    MNEMONIC="mule multiply combine frown aim window top weekend frown cancel turn token canoe thumb attitude flame execute purpose chest design winner enable coconut retire"
 else
     MONIKER="green"
     MNEMONIC="business bless fuel joy lady volcano odor tribe virus have effort rate mouse disease general view mention evoke lend expect frozen trend shrimp flavor"

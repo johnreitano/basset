@@ -16,6 +16,16 @@ echo MONIKER=$MONIKER
 
 cd ~/basset
 if [[ "${INDEX}" = "0" ]]; then
+    THIS_NODE_ID=$(build/bassetd tendermint show-node-id)
+    for f in ~/.basset/config/gentx/gentx-*.json; do
+        base=$(basename ${f})
+        if [[ "${base}" != "gentx-${THIS_NODE_ID}.json" ]]; then
+            ADDRESS=$(cat ${f} | jq -r '.body.messages[0].delegator_address')
+            AMOUNT=$(cat ${f} | jq -r '.body.messages[0].value.amount')
+            DENOM=$(cat ${f} | jq -r '.body.messages[0].value.denom')
+            build/bassetd add-genesis-account ${ADDRESS} ${AMOUNT}${DENOM}
+        fi
+    done
     build/bassetd collect-gentxs
 fi
 # nohup ignite chain serve --verbose >basset.out 2>&1 </dev/null &
